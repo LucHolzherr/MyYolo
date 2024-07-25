@@ -1,0 +1,7 @@
+*tempCodeRunnerFile.py
+data/
+runs/
+checkpoints/
+.vscode/
+__pycache__/
+venv/
