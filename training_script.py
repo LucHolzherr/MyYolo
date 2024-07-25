@@ -7,7 +7,6 @@ from src.datasets.kaggledata import KaggleDataSet
 from src.datasets.yolo_dataset import DataSetYolo
 from src.models.yolo_model import MyYolo
 from src.models.yolo_resnet import YoloResnet, YoloResnetAlternative
-from src.models.model_cp import Yolov1
 from src.losses.yolo_loss import YoloLoss
 from src.trainers.yolo_trainer import Trainer
 from src.utils import split_list_idxs
