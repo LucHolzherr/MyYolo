@@ -23,7 +23,6 @@ class YoloResnet(nn.Module):
 
         # resnet model
         self.resnet_og = models.resnet18(weights=ResNet18_Weights.DEFAULT)
-        # self.resnet_og = models.resnet50(weights=ResNet50_Weights.DEFAULT)
 
         # load classes
         with open("data/imagenet_classes.txt") as f:
@@ -34,24 +33,21 @@ class YoloResnet(nn.Module):
         self.resnet_base = nn.Sequential(
             OrderedDict(list(self.resnet_og.named_children())[:-2]))
         # Freeze all layers # except for the last block
-        for name, param in self.resnet_base.named_parameters():
-            if train_resnet:
-                # 'layer4' is the last block in ResNet18
-                if 'layer4' not in name:
+        if not train_resnet:
+            for name, param in self.resnet_base.named_parameters():
                     param.requires_grad = False
-            else:
-                param.requires_grad = False
 
         # 2 fully connected layers, input: 7*7*512, output = 1470 (=7*7*30)
         self.head = nn.Sequential(
             nn.Flatten(),
             # in paper its 4096, reduced to speedup training
-            nn.LazyLinear(out_features=num_linear_layer),
+            nn.Linear(in_features=7*7*512, out_features=num_linear_layer, bias=True),
             nn.LeakyReLU(0.1),
-            # nn.LeakyReLU(0.1),
             nn.Dropout(p=0.4),
-            nn.LazyLinear(out_features=(self.num_classes + \
-                          self.num_boxes_per_cell*5)*self.num_cells**2)
+            nn.Linear(
+                in_features=num_linear_layer, 
+                out_features=(self.num_classes + self.num_boxes_per_cell*5)*self.num_cells**2,
+                bias=True),
         )
 
         # resnet transform which needs to be applied to input image (resizing, normalizing)
@@ -67,7 +63,6 @@ class YoloResnet(nn.Module):
         self.normalize_inv_transform = v2.Normalize(
             mean=-self.normalize_means / self.normalize_stds, std=1./self.normalize_stds
         )
-        # self.normalize_inv_transform = v2.Identity()
 
     def forward(self, x):
         x = self.resnet_base(x)
@@ -110,12 +105,8 @@ class YoloResnetAlternative(nn.Module):
             OrderedDict(list(self.resnet18_og.named_children())[:-2]))
 
         # Freeze all layers # except for the last block
-        for name, param in self.resnet_base.named_parameters():
-            if train_resnet:
-                # 'layer4' is the last block in ResNet18
-                if 'layer4' not in name:
-                    param.requires_grad = False
-            else:
+        if not train_resnet:
+            for name, param in self.resnet_base.named_parameters():
                 param.requires_grad = False
 
         self.head = nn.Sequential(

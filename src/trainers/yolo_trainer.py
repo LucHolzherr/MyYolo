@@ -16,11 +16,6 @@ from src.datasets.yolo_dataset import DataSetYolo
 from src.metrics.mean_average_precision import mean_average_precision
 
 
-@staticmethod   # TODO: REMOVE
-def convert_from_my_to_cp(data):
-    return [data.img_idx, data.class_pred, data.confidence, data.x_mid, data.y_mid, data.width, data.height]
-
-
 class Trainer:
     def __init__(
             self,
@@ -29,6 +24,7 @@ class Trainer:
             val_dataset: DataSetYolo,
             loss_fn: nn.Module,
             optimizer,
+            scheduler,
             batch_size: int = 32,
             num_epochs: int = 10,
             is_tensorboard: bool = True,
@@ -50,6 +46,7 @@ class Trainer:
 
         self.loss_fn = loss_fn
         self.optimizer = optimizer
+        self.scheduler = scheduler
         self.num_epochs = num_epochs
         self.device = self.try_gpu()
         self.model.to(self.device)
@@ -107,6 +104,7 @@ class Trainer:
                 # Backward pass and optimization
                 loss.backward()
                 self.optimizer.step()
+                self.scheduler.step()
 
                 running_loss += loss.item()
                 # update progress bar

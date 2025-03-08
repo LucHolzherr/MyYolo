@@ -139,10 +139,9 @@ class YoloLoss(nn.Module):
         # fifth term is the class probability score, ground truth class propabilites are 0 if no object preesnt, 1 otherwise
         class_in = output_resh[idxs_present, 0:C]
         class_target = target_resh[idxs_present, 0:C]
-        # torch.nonzero(class_target,
-        cEL = nn.CrossEntropyLoss(weight=self.class_weights, reduction='sum')
-        L_class = cEL(class_in, class_target)
-        # L_class = self.SSE(class_in, class_target)
+        # cEL = nn.CrossEntropyLoss(weight=self.class_weights, reduction='sum')
+        # L_class = cEL(class_in, class_target)
+        L_class = self.SSE(class_in, class_target)
 
         if writer is not None:
             tag_scalar_dict = {
