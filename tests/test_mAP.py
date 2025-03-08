@@ -71,11 +71,6 @@ class TestMAP(unittest.TestCase):
 
         return (bb_predictions, bb_gts)
 
-    @staticmethod
-    def convert_from_my_to_cp(data: BoundingBoxInfo):
-        return [data.img_idx, data.class_pred, data.confidence, data.x_mid, data.y_mid, data.width, data.height]
-
-
 class TestUtils(unittest.TestCase):
 
     def setUp(self):
